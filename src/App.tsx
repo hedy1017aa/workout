@@ -20,8 +20,8 @@ import {
   MoreVertical,
   GripVertical,
 } from 'lucide-react';
-import { supabase, type Workout, type ExerciseWithSets, type Set } from './lib/supabase';
-
+import ExerciseSelector from "./components/ExerciseSelector";
+import { supabase, type Workout, type ExerciseWithSets } from './lib/supabase';
 const DEFAULT_REST_TIME = 90;
 
 const REST_MINUTES_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -117,7 +117,7 @@ const EXERCISE_ATTRIBUTES: Record<string, AttributeField[]> = {
   ],
   深蹲: [
     { type: 'select', key: 'equipment', label: '器材', options: ['槓鈴', '啞鈴'] },
-    { type: 'select', key: 'form', label: '形式', options: ['高背槓', '低背槓', '前蹲', '熊抱式', '酒杯式', 'SSB'] },
+    { type: 'select', key: 'form', label: '形式', options: ['高背槓', '低背槓', '前蹲', '前抱式', '酒杯式', 'SSB'] },
     { type: 'select', key: 'stance', label: '站距', options: ['標準', '寬距'] },
     { type: 'text', key: 'notes', label: '備註', placeholder: '自由輸入' },
   ],
@@ -164,6 +164,10 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [newExerciseName, setNewExerciseName] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | null>(null);
+  const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [showExerciseSheet, setShowExerciseSheet] = useState(false);
+  const [recentExercises, setRecentExercises] = useState<string[]>([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const [restTimer, setRestTimer] = useState<{
     exerciseId: string;
@@ -199,7 +203,20 @@ function App() {
   const [draggedExercise, setDraggedExercise] = useState<ExerciseWithSets | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+const toggleSelectedExercise = (name: string) => {
+  setSelectedExercises((prev) =>
+    prev.includes(name)
+      ? prev.filter((item) => item !== name)
+      : [...prev, name]
+  );
+};
+const addSelectedExercises = async () => {
+  for (const name of selectedExercises) {
+    await addExercise(name);
+  }
 
+  setSelectedExercises([]);
+};
   const initAudioContext = useCallback(() => {
     if (!audioContextRef.current) {
       const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -211,9 +228,21 @@ function App() {
   }, []);
 
   useEffect(() => {
-    loadTodayWorkout();
-  }, []);
+  loadTodayWorkout();
+  loadRecentExercises();
+}, []);
+const loadRecentExercises = async () => {
+  const { data, error } = await supabase
+    .from("exercises")
+    .select("name")
+    .order("created_at", { ascending: false });
 
+  if (error || !data) return;
+
+  const unique = [...new Set(data.map((item) => item.name))];
+
+  setRecentExercises(unique.slice(0, 8));
+};
   useEffect(() => {
     localStorage.setItem('globalRestTime', globalRestTime.toString());
   }, [globalRestTime]);
@@ -260,7 +289,7 @@ function App() {
         gainNode.connect(audioContext.destination);
         oscillator.frequency.value = 880;
         oscillator.type = 'sine';
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + 0.15);
@@ -539,7 +568,7 @@ function App() {
         ...exercise,
         sets: setsData,
       };
-      setExercises([...exercises, newExercise]);
+      setExercises((prev) => [...prev, newExercise]);
       setExpandedExercises((prev) => new Set([...prev, exercise.id]));
       setNewExerciseName('');
       setSelectedCategory(null);
@@ -1111,6 +1140,7 @@ function App() {
           </p>
         </header>
 
+        
         <div className="mb-6 space-y-4">
           <div className="flex gap-3">
             <input
@@ -1130,7 +1160,34 @@ function App() {
               新增
             </button>
           </div>
+<ExerciseSelector
+  searchKeyword={searchKeyword}
+  setSearchKeyword={setSearchKeyword}
+/>
+{recentExercises.length > 0 && (
+  <div className="mb-4">
+    <h3 className="text-sm font-semibold text-slate-400 mb-2">
+      🕘 最近使用
+    </h3>
 
+    <div className="flex flex-wrap gap-2">
+      {recentExercises.map((name) => (
+        <button
+          key={name}
+          onClick={() => toggleSelectedExercise(name)}
+          className={`px-3 py-2 rounded-lg border transition-all ${
+            selectedExercises.includes(name)
+              ? "bg-emerald-500 text-white border-emerald-500"
+              : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
+          }`}
+        >
+          {selectedExercises.includes(name) && "✅ "}
+          {name}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
           <div className="space-y-3">
             <div>
               <button
@@ -1145,36 +1202,36 @@ function App() {
                 <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${selectedCategory === 'upper' ? 'rotate-180' : ''}`} />
               </button>
               {selectedCategory === 'upper' && (
-                <div className="mt-2 space-y-2">
-                  {EXERCISE_OPTIONS.upper.map((opt) => (
-                    <div key={opt.id}>
-                      <button
-                        onClick={() => setSelectedSubcategory(selectedSubcategory === opt.id ? null : opt.id)}
-                        className={`w-full py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-between ${
-                          selectedSubcategory === opt.id
-                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                            : 'bg-slate-700/50 text-slate-300 border border-slate-600 hover:bg-slate-600/50'
-                        }`}
-                      >
-                        <span>{opt.name}</span>
-                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${selectedSubcategory === opt.id ? 'rotate-180' : ''}`} />
-                      </button>
-                      {selectedSubcategory === opt.id && opt.exercises && (
-                        <div className="mt-2 pl-3 flex gap-2 flex-wrap">
-                          {opt.exercises.map((ex) => (
-                            <button
-                              key={ex.id}
-                              onClick={() => handleSubcategorySelect(ex.name)}
-                              className="px-3 py-1.5 bg-slate-800/50 hover:bg-emerald-500/20 hover:text-emerald-400 text-slate-300 text-sm rounded-lg border border-slate-600 hover:border-emerald-500/30 transition-all duration-200"
-                            >
-                              {ex.name}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <div className="mt-4 space-y-4">
+  {EXERCISE_OPTIONS.upper.map((group) => (
+    <div key={group.id}>
+      <h3 className="text-sm font-semibold text-emerald-400 mb-2">
+        {group.name}
+      </h3>
+
+      <div className="flex flex-wrap gap-2">
+        {group.exercises
+  .filter((ex) =>
+    ex.name.toLowerCase().includes(searchKeyword.toLowerCase())
+  )
+  .map((ex) => (
+          <button
+            key={ex.id}
+            onClick={() => toggleSelectedExercise(ex.name)}
+            className={`px-3 py-2 rounded-lg border transition-all ${
+              selectedExercises.includes(ex.name)
+                ? "bg-emerald-500 text-white border-emerald-500"
+                : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
+            }`}
+          >
+            {selectedExercises.includes(ex.name) && "✅ "}
+            {ex.name}
+          </button>
+        ))}
+      </div>
+    </div>
+  ))}
+</div>
               )}
             </div>
 
@@ -1195,10 +1252,11 @@ function App() {
                   {EXERCISE_OPTIONS.lower.map((opt) => (
                     <button
                       key={opt.id}
-                      onClick={() => handleSubcategorySelect(opt.name)}
+                      onClick={() => toggleSelectedExercise(opt.name)}
                       className="px-4 py-2 bg-slate-700/50 hover:bg-emerald-500/20 hover:text-emerald-400 text-slate-300 rounded-lg border border-slate-600 hover:border-emerald-500/30 transition-all duration-200"
                     >
-                      {opt.name}
+                      {selectedExercises.includes(opt.name) ? "✅ " : ""}
+  {opt.name}
                     </button>
                   ))}
                 </div>
@@ -1206,7 +1264,35 @@ function App() {
             </div>
           </div>
         </div>
+{/* 已選動作 */}
+{selectedExercises.length > 0 && (
+  <div className="mt-4 p-3 bg-slate-800 rounded-xl border border-slate-700">
+    <div className="text-sm text-slate-400 mb-2">
+      已選 {selectedExercises.length} 個動作
+    </div>
 
+    <div className="text-emerald-400 text-sm break-words">
+      {selectedExercises.join(" ｜ ")}
+    </div>
+  </div>
+)}
+
+<div className="mt-4 flex gap-3">
+  <button
+    onClick={() => setSelectedExercises([])}
+    className="flex-1 h-12 rounded-xl border border-slate-600 text-slate-300"
+  >
+    取消
+  </button>
+
+  <button
+    onClick={addSelectedExercises}
+    disabled={selectedExercises.length === 0}
+    className="flex-1 h-12 rounded-xl bg-emerald-500 text-white disabled:bg-slate-700"
+  >
+    加入 {selectedExercises.length} 個動作
+  </button>
+</div>
         <div className="space-y-4">
           {exercises.length === 0 && (
             <div className="text-center py-12 text-slate-500">
