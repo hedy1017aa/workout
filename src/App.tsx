@@ -437,7 +437,7 @@ const loadRecentExercises = async () => {
       .select('*, exercises(*, sets(*))')
       .order('workout_date', { ascending: false });
 
-    if (workouts) {
+    s) {
       const workoutsWithExercises = workouts
         .filter((w) => w.exercises && w.exercises.length > 0)
         .map((w) => ({
@@ -761,7 +761,7 @@ const loadRecentExercises = async () => {
   };
 
   const finishWorkout = async () => {
-    if (!workout) return;
+    ) return;
   };
 
   const toggleExpand = (exerciseId: string) => {
@@ -807,7 +807,7 @@ const loadRecentExercises = async () => {
       dismissTimer();
     }
   };
-
+console.log("loading =", loading);
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
