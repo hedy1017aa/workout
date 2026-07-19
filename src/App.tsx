@@ -20,7 +20,6 @@ import {
   MoreVertical,
   GripVertical,
 } from 'lucide-react';
-import ExerciseSelector from "./components/ExerciseSelector";
 import { supabase, type Workout, type ExerciseWithSets } from './lib/supabase';
 const DEFAULT_REST_TIME = 90;
 
@@ -1160,10 +1159,7 @@ const loadRecentExercises = async () => {
               新增
             </button>
           </div>
-<ExerciseSelector
-  searchKeyword={searchKeyword}
-  setSearchKeyword={setSearchKeyword}
-/>
+
 {recentExercises.length > 0 && (
   <div className="mb-4">
     <h3 className="text-sm font-semibold text-slate-400 mb-2">
