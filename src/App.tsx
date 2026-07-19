@@ -1159,7 +1159,15 @@ const loadRecentExercises = async () => {
               新增
             </button>
           </div>
-
+<div className="mb-4">
+  <input
+    type="text"
+    value={searchKeyword}
+    onChange={(e) => setSearchKeyword(e.target.value)}
+    placeholder="🔍 搜尋動作..."
+    className="w-full h-11 bg-slate-800/50 border border-slate-700 rounded-xl px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+  />
+</div>
 {recentExercises.length > 0 && (
   <div className="mb-4">
     <h3 className="text-sm font-semibold text-slate-400 mb-2">
