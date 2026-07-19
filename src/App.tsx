@@ -1253,7 +1253,11 @@ const loadRecentExercises = async () => {
               </button>
               {selectedCategory === 'lower' && (
                 <div className="mt-2 flex gap-2 flex-wrap">
-                  {EXERCISE_OPTIONS.lower.map((opt) => (
+                  {EXERCISE_OPTIONS.lower
+  .filter((opt) =>
+    opt.name.toLowerCase().includes(searchKeyword.toLowerCase())
+  )
+  .map((opt) => (
                     <button
                       key={opt.id}
                       onClick={() => toggleSelectedExercise(opt.name)}
