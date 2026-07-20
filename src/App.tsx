@@ -167,6 +167,14 @@ function App() {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [showExerciseSheet, setShowExerciseSheet] = useState(false);
   const [recentExercises, setRecentExercises] = useState<string[]>([]);
+  const favoriteExercises = [
+  "臥推",
+  "引體向上",
+  "深蹲",
+  "肩推",
+  "划船",
+  "滑輪下拉",
+];
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const [restTimer, setRestTimer] = useState<{
     exerciseId: string;
@@ -1192,6 +1200,28 @@ const loadRecentExercises = async () => {
     </div>
   </div>
 )}
+<div className="mb-4">
+  <h3 className="text-sm font-semibold text-amber-400 mb-2">
+    ⭐ 常用
+  </h3>
+
+  <div className="flex flex-wrap gap-2">
+    {favoriteExercises.map((name) => (
+      <button
+        key={name}
+        onClick={() => toggleSelectedExercise(name)}
+        className={`px-3 py-2 rounded-lg border transition-all ${
+          selectedExercises.includes(name)
+            ? "bg-emerald-500 text-white border-emerald-500"
+            : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
+        }`}
+      >
+        {selectedExercises.includes(name) && "✅ "}
+        {name}
+      </button>
+    ))}
+  </div>
+</div>
           <div className="space-y-3">
             <div>
               <button
