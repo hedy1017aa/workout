@@ -21,6 +21,7 @@ import {
   GripVertical,
 } from 'lucide-react';
 import { supabase, type Workout, type ExerciseWithSets } from './lib/supabase';
+import AddExerciseSheet from './components/AddExerciseSheet';
 const DEFAULT_REST_TIME = 90;
 
 const REST_MINUTES_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -1148,189 +1149,35 @@ const loadRecentExercises = async () => {
         </header>
 
         
-        <div className="mb-6 space-y-4">
-          <div className="flex gap-3">
-            <input
-              type="text"
-              value={newExerciseName}
-              onChange={(e) => setNewExerciseName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && newExerciseName.trim() && addExercise(newExerciseName)}
-              placeholder="輸入動作名稱..."
-              className="h-12 flex-1 bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50"
-            />
-            <button
-              onClick={() => addExercise(newExerciseName)}
-              disabled={!newExerciseName.trim()}
-              className="h-12 px-5 bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              新增
-            </button>
-          </div>
-<div className="mb-4">
-  <input
-    type="text"
-    value={searchKeyword}
-    onChange={(e) => setSearchKeyword(e.target.value)}
-    placeholder="🔍 搜尋動作..."
-    className="w-full h-11 bg-slate-800/50 border border-slate-700 rounded-xl px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-  />
-</div>
-{recentExercises.length > 0 && (
-  <div className="mb-4">
-    <h3 className="text-sm font-semibold text-slate-400 mb-2">
-      🕘 最近使用
-    </h3>
-
-    <div className="flex flex-wrap gap-2">
-      {recentExercises.map((name) => (
-        <button
-          key={name}
-          onClick={() => toggleSelectedExercise(name)}
-          className={`px-3 py-2 rounded-lg border transition-all ${
-            selectedExercises.includes(name)
-              ? "bg-emerald-500 text-white border-emerald-500"
-              : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
-          }`}
-        >
-          {selectedExercises.includes(name) && "✅ "}
-          {name}
-        </button>
-      ))}
-    </div>
-  </div>
-)}
-<div className="mb-4">
-  <h3 className="text-sm font-semibold text-amber-400 mb-2">
-    ⭐ 常用
-  </h3>
-
-  <div className="flex flex-wrap gap-2">
-    {favoriteExercises.map((name) => (
-      <button
-        key={name}
-        onClick={() => toggleSelectedExercise(name)}
-        className={`px-3 py-2 rounded-lg border transition-all ${
-          selectedExercises.includes(name)
-            ? "bg-emerald-500 text-white border-emerald-500"
-            : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
-        }`}
-      >
-        {selectedExercises.includes(name) && "✅ "}
-        {name}
-      </button>
-    ))}
-  </div>
-</div>
-          <div className="space-y-3">
-            <div>
-              <button
-                onClick={() => setSelectedCategory(selectedCategory === 'upper' ? null : 'upper')}
-                className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-between ${
-                  selectedCategory === 'upper'
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-slate-800/50 text-slate-300 border border-slate-700 hover:bg-slate-700/50'
-                }`}
-              >
-                <span>上肢</span>
-                <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${selectedCategory === 'upper' ? 'rotate-180' : ''}`} />
-              </button>
-              {selectedCategory === 'upper' && (
-                <div className="mt-4 space-y-4">
-  {EXERCISE_OPTIONS.upper.map((group) => (
-    <div key={group.id}>
-      <h3 className="text-sm font-semibold text-emerald-400 mb-2">
-        {group.name}
-      </h3>
-
-      <div className="flex flex-wrap gap-2">
-        {group.exercises
-  .filter((ex) =>
-    ex.name.toLowerCase().includes(searchKeyword.toLowerCase())
-  )
-  .map((ex) => (
+        <div className="mb-6">
           <button
-            key={ex.id}
-            onClick={() => toggleSelectedExercise(ex.name)}
-            className={`px-3 py-2 rounded-lg border transition-all ${
-              selectedExercises.includes(ex.name)
-                ? "bg-emerald-500 text-white border-emerald-500"
-                : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
-            }`}
+            onClick={() => setShowExerciseSheet(true)}
+            className="w-full h-12 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
           >
-            {selectedExercises.includes(ex.name) && "✅ "}
-            {ex.name}
+            <Plus className="w-5 h-5" />
+            新增動作
           </button>
-        ))}
-      </div>
-    </div>
-  ))}
-</div>
-              )}
-            </div>
-
-            <div>
-              <button
-                onClick={() => setSelectedCategory(selectedCategory === 'lower' ? null : 'lower')}
-                className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-between ${
-                  selectedCategory === 'lower'
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-slate-800/50 text-slate-300 border border-slate-700 hover:bg-slate-700/50'
-                }`}
-              >
-                <span>下肢</span>
-                <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${selectedCategory === 'lower' ? 'rotate-180' : ''}`} />
-              </button>
-              {selectedCategory === 'lower' && (
-                <div className="mt-2 flex gap-2 flex-wrap">
-                  {EXERCISE_OPTIONS.lower
-  .filter((opt) =>
-    opt.name.toLowerCase().includes(searchKeyword.toLowerCase())
-  )
-  .map((opt) => (
-                    <button
-                      key={opt.id}
-                      onClick={() => toggleSelectedExercise(opt.name)}
-                      className="px-4 py-2 bg-slate-700/50 hover:bg-emerald-500/20 hover:text-emerald-400 text-slate-300 rounded-lg border border-slate-600 hover:border-emerald-500/30 transition-all duration-200"
-                    >
-                      {selectedExercises.includes(opt.name) ? "✅ " : ""}
-  {opt.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
         </div>
-{/* 已選動作 */}
-{selectedExercises.length > 0 && (
-  <div className="mt-4 p-3 bg-slate-800 rounded-xl border border-slate-700">
-    <div className="text-sm text-slate-400 mb-2">
-      已選 {selectedExercises.length} 個動作
-    </div>
 
-    <div className="text-emerald-400 text-sm break-words">
-      {selectedExercises.join(" ｜ ")}
-    </div>
-  </div>
-)}
+        <AddExerciseSheet
+          isOpen={showExerciseSheet}
+          onClose={() => setShowExerciseSheet(false)}
+          newExerciseName={newExerciseName}
+          setNewExerciseName={setNewExerciseName}
+          addExercise={addExercise}
+          recentExercises={recentExercises}
+          selectedExercises={selectedExercises}
+          toggleSelectedExercise={toggleSelectedExercise}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          searchKeyword={searchKeyword}
+          setSearchKeyword={setSearchKeyword}
+          exerciseOptions={EXERCISE_OPTIONS}
+          favoriteExercises={favoriteExercises}
+          addSelectedExercises={addSelectedExercises}
+          setSelectedExercises={setSelectedExercises}
+        />
 
-<div className="mt-4 flex gap-3">
-  <button
-    onClick={() => setSelectedExercises([])}
-    className="flex-1 h-12 rounded-xl border border-slate-600 text-slate-300"
-  >
-    取消
-  </button>
-
-  <button
-    onClick={addSelectedExercises}
-    disabled={selectedExercises.length === 0}
-    className="flex-1 h-12 rounded-xl bg-emerald-500 text-white disabled:bg-slate-700"
-  >
-    加入 {selectedExercises.length} 個動作
-  </button>
-</div>
         <div className="space-y-4">
           {exercises.length === 0 && (
             <div className="text-center py-12 text-slate-500">
