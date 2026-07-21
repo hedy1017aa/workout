@@ -167,6 +167,7 @@ function App() {
   const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [showExerciseSheet, setShowExerciseSheet] = useState(false);
+  const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [recentExercises, setRecentExercises] = useState<string[]>([]);
   const favoriteExercises = [
   "臥推",
@@ -948,7 +949,30 @@ const loadRecentExercises = async () => {
       </div>
     );
   }
+{showExerciseSelector && (
+  <div
+    className="fixed inset-0 z-50 bg-black/50 flex items-end"
+    onClick={() => setShowExerciseSelector(false)}
+  >
+    <div
+      className="w-full bg-slate-900 rounded-t-3xl p-6"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="w-12 h-1 bg-slate-600 rounded-full mx-auto mb-6" />
 
+      <h2 className="text-xl font-bold text-white mb-4">
+        新增動作
+      </h2>
+
+      <button
+        className="w-full h-12 rounded-xl bg-emerald-500 text-white"
+        onClick={() => setShowExerciseSelector(false)}
+      >
+        關閉
+      </button>
+    </div>
+  </div>
+)}
   // History Detail View
   if (selectedHistoryWorkout) {
     return (
@@ -1113,7 +1137,12 @@ const loadRecentExercises = async () => {
       </div>
     );
   }
-
+<button
+  onClick={() => setShowExerciseSelector(true)}
+  className="w-full h-12 rounded-xl bg-blue-500 text-white mb-4"
+>
+  🧪 測試 Bottom Sheet
+</button>
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="max-w-2xl mx-auto px-4 py-8 pb-24">
@@ -1149,6 +1178,191 @@ const loadRecentExercises = async () => {
         </header>
 
         
+        <div className="mb-6 space-y-4">
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={newExerciseName}
+              onChange={(e) => setNewExerciseName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && newExerciseName.trim() && addExercise(newExerciseName)}
+              placeholder="輸入動作名稱..."
+              className="h-12 flex-1 bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50"
+            />
+            <button
+              onClick={() => addExercise(newExerciseName)}
+              disabled={!newExerciseName.trim()}
+              className="h-12 px-5 bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2"
+            >
+              
+              <Plus className="w-5 h-5" />
+              新增
+            </button>
+          </div>
+          
+<div className="mb-4">
+  <input
+    type="text"
+    value={searchKeyword}
+    onChange={(e) => setSearchKeyword(e.target.value)}
+    placeholder="🔍 搜尋動作..."
+    className="w-full h-11 bg-slate-800/50 border border-slate-700 rounded-xl px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+  />
+</div>
+{recentExercises.length > 0 && (
+  <div className="mb-4">
+    <h3 className="text-sm font-semibold text-slate-400 mb-2">
+      🕘 最近使用
+    </h3>
+
+    <div className="flex flex-wrap gap-2">
+      {recentExercises.map((name) => (
+        <button
+          key={name}
+          onClick={() => toggleSelectedExercise(name)}
+          className={`px-3 py-2 rounded-lg border transition-all ${
+            selectedExercises.includes(name)
+              ? "bg-emerald-500 text-white border-emerald-500"
+              : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
+          }`}
+        >
+          {selectedExercises.includes(name) && "✅ "}
+          {name}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
+<div className="mb-4">
+  <h3 className="text-sm font-semibold text-amber-400 mb-2">
+    ⭐ 常用
+  </h3>
+
+  <div className="flex flex-wrap gap-2">
+    {favoriteExercises.map((name) => (
+      <button
+        key={name}
+        onClick={() => toggleSelectedExercise(name)}
+        className={`px-3 py-2 rounded-lg border transition-all ${
+          selectedExercises.includes(name)
+            ? "bg-emerald-500 text-white border-emerald-500"
+            : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
+        }`}
+      >
+        {selectedExercises.includes(name) && "✅ "}
+        {name}
+      </button>
+    ))}
+  </div>
+</div>
+          <div className="space-y-3">
+            <div>
+              <button
+                onClick={() => setSelectedCategory(selectedCategory === 'upper' ? null : 'upper')}
+                className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-between ${
+                  selectedCategory === 'upper'
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                    : 'bg-slate-800/50 text-slate-300 border border-slate-700 hover:bg-slate-700/50'
+                }`}
+              >
+                <span>上肢</span>
+                <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${selectedCategory === 'upper' ? 'rotate-180' : ''}`} />
+              </button>
+              {selectedCategory === 'upper' && (
+                <div className="mt-4 space-y-4">
+  {EXERCISE_OPTIONS.upper.map((group) => (
+    <div key={group.id}>
+      <h3 className="text-sm font-semibold text-emerald-400 mb-2">
+        {group.name}
+      </h3>
+
+      <div className="flex flex-wrap gap-2">
+        {group.exercises
+  .filter((ex) =>
+    ex.name.toLowerCase().includes(searchKeyword.toLowerCase())
+  )
+  .map((ex) => (
+          <button
+            key={ex.id}
+            onClick={() => toggleSelectedExercise(ex.name)}
+            className={`px-3 py-2 rounded-lg border transition-all ${
+              selectedExercises.includes(ex.name)
+                ? "bg-emerald-500 text-white border-emerald-500"
+                : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
+            }`}
+          >
+            {selectedExercises.includes(ex.name) && "✅ "}
+            {ex.name}
+          </button>
+        ))}
+      </div>
+    </div>
+  ))}
+</div>
+              )}
+            </div>
+
+            <div>
+              <button
+                onClick={() => setSelectedCategory(selectedCategory === 'lower' ? null : 'lower')}
+                className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-between ${
+                  selectedCategory === 'lower'
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                    : 'bg-slate-800/50 text-slate-300 border border-slate-700 hover:bg-slate-700/50'
+                }`}
+              >
+                <span>下肢</span>
+                <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${selectedCategory === 'lower' ? 'rotate-180' : ''}`} />
+              </button>
+              {selectedCategory === 'lower' && (
+                <div className="mt-2 flex gap-2 flex-wrap">
+                  {EXERCISE_OPTIONS.lower
+  .filter((opt) =>
+    opt.name.toLowerCase().includes(searchKeyword.toLowerCase())
+  )
+  .map((opt) => (
+                    <button
+                      key={opt.id}
+                      onClick={() => toggleSelectedExercise(opt.name)}
+                      className="px-4 py-2 bg-slate-700/50 hover:bg-emerald-500/20 hover:text-emerald-400 text-slate-300 rounded-lg border border-slate-600 hover:border-emerald-500/30 transition-all duration-200"
+                    >
+                      {selectedExercises.includes(opt.name) ? "✅ " : ""}
+  {opt.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+{/* 已選動作 */}
+{selectedExercises.length > 0 && (
+  <div className="mt-4 p-3 bg-slate-800 rounded-xl border border-slate-700">
+    <div className="text-sm text-slate-400 mb-2">
+      已選 {selectedExercises.length} 個動作
+    </div>
+
+    <div className="text-emerald-400 text-sm break-words">
+      {selectedExercises.join(" ｜ ")}
+    </div>
+  </div>
+)}
+
+<div className="mt-4 flex gap-3">
+  <button
+    onClick={() => setSelectedExercises([])}
+    className="flex-1 h-12 rounded-xl border border-slate-600 text-slate-300"
+  >
+    取消
+  </button>
+
+  <button
+    onClick={addSelectedExercises}
+    disabled={selectedExercises.length === 0}
+    className="flex-1 h-12 rounded-xl bg-emerald-500 text-white disabled:bg-slate-700"
+  >
+    加入 {selectedExercises.length} 個動作
+  </button>
+</div>
         <div className="mb-6">
           <button
             onClick={() => setShowExerciseSheet(true)}
