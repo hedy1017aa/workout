@@ -1,6 +1,5 @@
-import { X, Plus, ChevronDown } from 'lucide-react';
+import { X, Plus, } from 'lucide-react';
 
-type ExerciseCategory = 'upper' | 'lower';
 
 type Props = {
   isOpen: boolean;
@@ -11,8 +10,7 @@ type Props = {
   recentExercises: string[];
   selectedExercises: string[];
   toggleSelectedExercise: (name: string) => void;
-  selectedCategory: ExerciseCategory | null;
-  setSelectedCategory: (value: ExerciseCategory | null) => void;
+
   searchKeyword: string;
   setSearchKeyword: (value: string) => void;
   exerciseOptions: {
@@ -22,6 +20,7 @@ type Props = {
   favoriteExercises: string[];
   addSelectedExercises: () => void;
   setSelectedExercises: (value: string[]) => void;
+  
 };
 
 export default function AddExerciseSheet({
@@ -33,13 +32,17 @@ export default function AddExerciseSheet({
   recentExercises,
   selectedExercises,
   toggleSelectedExercise,
-  selectedCategory,
-  setSelectedCategory,
+
   searchKeyword,
   setSearchKeyword,
   exerciseOptions,
   favoriteExercises,
   addSelectedExercises,
+  const handleClose = () => {
+  setSelectedExercises([]);
+  setSearchKeyword("");
+  onClose();
+};
   setSelectedExercises,
 }: Props) {
   if (!isOpen) return null;
@@ -143,81 +146,65 @@ export default function AddExerciseSheet({
 
           <div className="space-y-3">
             <div>
-              <button
-                onClick={() => setSelectedCategory(selectedCategory === 'upper' ? null : 'upper')}
-                className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-between ${
-                  selectedCategory === 'upper'
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-slate-800/50 text-slate-300 border border-slate-700 hover:bg-slate-700/50'
-                }`}
-              >
-                <span>上肢</span>
-                <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${selectedCategory === 'upper' ? 'rotate-180' : ''}`} />
-              </button>
-              {selectedCategory === 'upper' && (
-                <div className="mt-4 space-y-4">
-                  {exerciseOptions.upper.map((group) => (
-                    <div key={group.id}>
-                      <h3 className="text-sm font-semibold text-emerald-400 mb-2">
-                        {group.name}
-                      </h3>
+              <div className="mt-4 space-y-4">
+  {exerciseOptions.upper.map((group) => (
+    <div key={group.id}>
+      <h3 className="text-sm font-semibold text-emerald-400 mb-2">
+        {group.name}
+      </h3>
 
-                      <div className="flex flex-wrap gap-2">
-                        {group.exercises
-                          .filter((ex) =>
-                            ex.name.toLowerCase().includes(searchKeyword.toLowerCase())
-                          )
-                          .map((ex) => (
-                            <button
-                              key={ex.id}
-                              onClick={() => toggleSelectedExercise(ex.name)}
-                              className={`px-3 py-2 rounded-lg border transition-all ${
-                                selectedExercises.includes(ex.name)
-                                  ? "bg-emerald-500 text-white border-emerald-500"
-                                  : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
-                              }`}
-                            >
-                              {selectedExercises.includes(ex.name) && "✅ "}
-                              {ex.name}
-                            </button>
-                          ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+      <div className="flex flex-wrap gap-2">
+        {group.exercises
+          .filter((ex) =>
+            ex.name.toLowerCase().includes(searchKeyword.toLowerCase())
+          )
+          .map((ex) => (
+            <button
+              key={ex.id}
+              onClick={() => toggleSelectedExercise(ex.name)}
+              className={`px-3 py-2 rounded-lg border transition-all ${
+                selectedExercises.includes(ex.name)
+                  ? "bg-emerald-500 text-white border-emerald-500"
+                  : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
+              }`}
+            >
+              {selectedExercises.includes(ex.name) && "✅ "}
+              {ex.name}
+            </button>
+          ))}
+      </div>
+    </div>
+  ))}
+</div>
             </div>
 
             <div>
-              <button
-                onClick={() => setSelectedCategory(selectedCategory === 'lower' ? null : 'lower')}
-                className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-between ${
-                  selectedCategory === 'lower'
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-slate-800/50 text-slate-300 border border-slate-700 hover:bg-slate-700/50'
-                }`}
-              >
-                <span>下肢</span>
-                <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${selectedCategory === 'lower' ? 'rotate-180' : ''}`} />
-              </button>
-              {selectedCategory === 'lower' && (
-                <div className="mt-2 flex gap-2 flex-wrap">
-                  {exerciseOptions.lower
-                    .filter((opt) =>
-                      opt.name.toLowerCase().includes(searchKeyword.toLowerCase())
-                    )
-                    .map((opt) => (
-                      <button
-                        key={opt.id}
-                        onClick={() => toggleSelectedExercise(opt.name)}
-                        className="px-4 py-2 bg-slate-700/50 hover:bg-emerald-500/20 hover:text-emerald-400 text-slate-300 rounded-lg border border-slate-600 hover:border-emerald-500/30 transition-all duration-200"
-                      >
-                        {selectedExercises.includes(opt.name) ? "✅ " : ""}
-                        {opt.name}
-                      </button>
-                    ))}
-                </div>
-              )}
+              <div className="mt-6">
+  <h3 className="text-base font-semibold text-emerald-400 mb-3">
+    🦵 下肢
+  </h3>
+
+  <div className="flex flex-wrap gap-2">
+    {exerciseOptions.lower
+      .filter((opt) =>
+        opt.name.toLowerCase().includes(searchKeyword.toLowerCase())
+      )
+      .map((opt) => (
+        <button
+          key={opt.id}
+          onClick={() => toggleSelectedExercise(opt.name)}
+          className={`px-3 py-2 rounded-lg border transition-all ${
+            selectedExercises.includes(opt.name)
+              ? "bg-emerald-500 text-white border-emerald-500"
+              : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
+          }`}
+        >
+          {selectedExercises.includes(opt.name) && "✅ "}
+          {opt.name}
+        </button>
+      ))}
+  </div>
+</div>
             </div>
           </div>
 
@@ -242,13 +229,18 @@ export default function AddExerciseSheet({
               取消
             </button>
 
-            <button
-              onClick={addSelectedExercises}
-              disabled={selectedExercises.length === 0}
-              className="flex-1 h-12 rounded-xl bg-emerald-500 text-white disabled:bg-slate-700"
-            >
-              加入 {selectedExercises.length} 個動作
-            </button>
+           <button
+  onClick={async () => {
+  await addSelectedExercises();
+  setSelectedExercises([]);
+  setSearchKeyword("");
+  onClose();
+}}
+  disabled={selectedExercises.length === 0}
+  className="flex-1 h-12 rounded-xl bg-emerald-500 text-white disabled:bg-slate-700 disabled:cursor-not-allowed"
+>
+  加入 {selectedExercises.length} 個動作
+</button>
           </div>
         </div>
       </div>

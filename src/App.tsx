@@ -31,7 +31,7 @@ const EXERCISE_OPTIONS = {
   upper: [
     {
       id: 'chest',
-      name: '胸部',
+      name: '💪胸部',
       exercises: [
         { id: 'bench-press', name: '臥推' },
         { id: 'push-up', name: '伏地挺身' },
@@ -40,7 +40,7 @@ const EXERCISE_OPTIONS = {
     },
     {
       id: 'back',
-      name: '背部',
+      name: '💪背部',
       exercises: [
         { id: 'pull-up', name: '引體向上' },
         { id: 'row', name: '划船' },
@@ -49,7 +49,7 @@ const EXERCISE_OPTIONS = {
     },
     {
       id: 'shoulder',
-      name: '肩部',
+      name: '💪肩部',
       exercises: [
         { id: 'shoulder-press', name: '肩推' },
         { id: 'lateral-raise', name: '平舉' },
@@ -163,7 +163,6 @@ function App() {
   const [exercises, setExercises] = useState<ExerciseWithSets[]>([]);
   const [loading, setLoading] = useState(true);
   const [newExerciseName, setNewExerciseName] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | null>(null);
   const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [showExerciseSheet, setShowExerciseSheet] = useState(false);
@@ -176,7 +175,7 @@ function App() {
   "划船",
   "滑輪下拉",
 ];
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
+  
   const [restTimer, setRestTimer] = useState<{
     exerciseId: string;
     setNumber: number;
@@ -211,6 +210,11 @@ function App() {
   const [draggedExercise, setDraggedExercise] = useState<ExerciseWithSets | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const handleClose = () => {
+  setSearchKeyword("");
+  setSelectedExercises([]);
+  onClose();
+};
 const toggleSelectedExercise = (name: string) => {
   setSelectedExercises((prev) =>
     prev.includes(name)
@@ -579,8 +583,7 @@ const loadRecentExercises = async () => {
       setExercises((prev) => [...prev, newExercise]);
       setExpandedExercises((prev) => new Set([...prev, exercise.id]));
       setNewExerciseName('');
-      setSelectedCategory(null);
-      setSelectedSubcategory(null);
+     
     }
   };
 
@@ -1168,8 +1171,7 @@ const loadRecentExercises = async () => {
           recentExercises={recentExercises}
           selectedExercises={selectedExercises}
           toggleSelectedExercise={toggleSelectedExercise}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
+         
           searchKeyword={searchKeyword}
           setSearchKeyword={setSearchKeyword}
           exerciseOptions={EXERCISE_OPTIONS}
